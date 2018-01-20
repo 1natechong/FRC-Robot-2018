@@ -11,6 +11,7 @@ public class TalonFactory {
         public double MAX_OUTPUT_VOLTAGE = 12;
         public double NOMINAL_VOLTAGE = 0;
         public double PEAK_VOLTAGE = 12;
+        public boolean ENABLE_BRAKE = false;
         public double NOMINAL_CLOSED_LOOP_VOLTAGE = 12;
         public boolean SAFETY_ENABLED = false;
         public int CONTROL_FRAME_PERIOD_MS = 5;
@@ -22,18 +23,21 @@ public class TalonFactory {
         public int PULSE_WIDTH_STATUS_FRAME_RATE_MS = 100;
         public double VOLTAGE_COMPENSATION_RAMP_RATE = 0;
         public double VOLTAGE_RAMP_RATE = 0;
-        
+        public boolean ENABLE_CURRENT_LIMIT = false;
+        public boolean ENABLE_SOFT_LIMIT = false;
+        public boolean ENABLE_LIMIT_SWITCH = false;
+        public int CURRENT_LIMIT = 0;
     }
 	
 	private static final Configuration kDefaultConfig = new Configuration();
 	
-	public static TalonSRX createDefault(int id) {
-        return createTalon(id, kDefaultConfig);
+	public static TalonSRX createDefault(int p_id) {
+        return createTalon(p_id, kDefaultConfig);
     }
 	
-	public static TalonSRX createTalon(int id, Configuration config)
+	public static TalonSRX createTalon(int p_id, Configuration pConfig)
 	{
-		TalonSRX talon = new TalonSRX(id);
+		TalonSRX talon = new TalonSRX(p_id);
 		talon.set(ControlMode.PercentOutput, 0);
 		return talon;
 		

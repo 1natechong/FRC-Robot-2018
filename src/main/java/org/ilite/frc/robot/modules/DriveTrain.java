@@ -25,40 +25,40 @@ public class DriveTrain implements IModule {
   //private final ILog mLog = Logger.createLog(DriveTrain.class);
 
 	//private Solenoid gearShifter;
-	private final TalonSRX leftMaster, rightMaster, leftFollower, rightFollower; /*leftFollower2, rightFollower2;*/
-	private ControlMode controlMode;
-	private double desiredLeft, desiredRight;
+	private final TalonSRX mLeftMaster, mRightMaster, mLeftFollower, mRightFollower; /*leftFollower2, rightFollower2;*/
+	private ControlMode mControlMode;
+	private double mDesiredLeft, mDesiredRight;
 	
 	public DriveTrain()
 	{
 		//leftMaster = new TalonSRX(SystemSettings.kDRIVETRAIN_TALONID_LEFT1);
-		leftMaster = TalonFactory.createDefault(SystemSettings.kDRIVETRAIN_TALONID_LEFT1);
-		rightMaster = TalonFactory.createDefault(SystemSettings.kDRIVETRAIN_TALONID_RIGHT1);
-		leftFollower = TalonFactory.createDefault(SystemSettings.kDRIVETRAIN_TALONID_LEFT2);
-		rightFollower = TalonFactory.createDefault(SystemSettings.kDRIVETRAIN_TALONID_RIGHT2);
+		mLeftMaster = TalonFactory.createDefault(SystemSettings.kDRIVETRAIN_TALONID_LEFT1);
+		mRightMaster = TalonFactory.createDefault(SystemSettings.kDRIVETRAIN_TALONID_RIGHT1);
+		mLeftFollower = TalonFactory.createDefault(SystemSettings.kDRIVETRAIN_TALONID_LEFT2);
+		mRightFollower = TalonFactory.createDefault(SystemSettings.kDRIVETRAIN_TALONID_RIGHT2);
 		//leftFollower2 = new TalonSRX(SystemSettings.DRIVETRAIN_TALONID_LEFT3);
 		//rightFollower2 = new TalonSRX(SystemSettings.DRIVETRAIN_TALONID_RIGHT3);
-		rightFollower.follow(rightMaster);
+		mRightFollower.follow(mRightMaster);
 		//rightFollower2.follow(rightMaster);
 		//leftFollower2.follow(leftMaster);
-		leftFollower.follow(leftMaster);
-		controlMode = ControlMode.PercentOutput;
+		mLeftFollower.follow(mLeftMaster);
+		mControlMode = ControlMode.PercentOutput;
 
 
 		}
 	@Override
 	public void initialize(double pNow) {
-		leftMaster.set(controlMode, desiredLeft);
-		rightMaster.set(controlMode, desiredRight);
+		mLeftMaster.set(mControlMode, mDesiredLeft);
+		mRightMaster.set(mControlMode, mDesiredRight);
 		
 	}
 
 	@Override
 	public boolean update(double pNow) {
 		//updateSpeed(desiredLeft, desiredRight);
-		leftMaster.set(controlMode, desiredLeft);
-		rightMaster.set(controlMode, desiredRight);
-		System.out.printf("Left: %s Right: %s\n", desiredLeft, desiredRight);
+		mLeftMaster.set(mControlMode, mDesiredLeft);
+		mRightMaster.set(mControlMode, mDesiredRight);
+		System.out.printf("Left: %s Right: %s\n", mDesiredLeft, mDesiredRight);
 		return false;
 	}	
 	
@@ -67,32 +67,32 @@ public class DriveTrain implements IModule {
 	
 	}*/
 	
-	public void set(ControlMode pMode, double l, double r)
+	public void set(ControlMode pMode, double p_l, double p_r)
 	{
-		desiredLeft = l;
-		desiredRight = r;
+		mDesiredLeft = p_l;
+		mDesiredRight = p_r;
 	}
 	
-	public void setPower(double l, double r) {
-		set(ControlMode.PercentOutput, l, r);
+	public void setPower(double p_l, double p_r) {
+		set(ControlMode.PercentOutput, p_l, p_r);
 	}
 	
 	@Override
 	public void shutdown(double pNow) {
-		leftMaster.neutralOutput();
-		rightMaster.neutralOutput();
+		mLeftMaster.neutralOutput();
+		mRightMaster.neutralOutput();
 		
 	}
 	
-	public void changeModes(ControlMode controlMode)
+	public void changeModes(ControlMode mControlMode)
 	{
-		switch(controlMode)
+		switch(mControlMode)
 		{
 		case Velocity:
 			break;
 		case PercentOutput:
-			desiredLeft = 0;
-			desiredRight = 0;
+			mDesiredLeft = 0;
+			mDesiredRight = 0;
 			break;
 		case Current:	
 			break;
@@ -115,6 +115,34 @@ public class DriveTrain implements IModule {
 		}
 	}
 	
+	public TalonSRX getMasterTalon(String mMaster)
+	{
+		switch(mMaster)
+		{
+		case "leftMaster":
+			return mLeftMaster;
+		case "rightMaster":
+			return mRightMaster;
+		default:
+			return null;
+		}
+	}
+	
+	public TalonSRX getRightMaster()
+	{return mRightMaster;}
+	
+	public TalonSRX getLeftMaster()
+	{return mLeftMaster;}
+	
+	public void printDesiredSpeeds()
+	{
+		System.out.println("Desired Left Speed: " + getDesiredLeft() +"\nDesired Right Speed: " + getDesiredRight());
+	}
+	public double getDesiredLeft()
+	{return mDesiredLeft;}
+	
+	public double getDesiredRight()
+	{return mDesiredRight;}
 }
 	
 	
