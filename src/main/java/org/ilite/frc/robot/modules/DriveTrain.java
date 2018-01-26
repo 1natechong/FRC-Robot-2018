@@ -7,6 +7,7 @@ import org.ilite.frc.common.types.EDriveTrain;
 import org.ilite.frc.common.types.ELogitech310;
 import org.ilite.frc.robot.Data;
 //import org.usfirst.frc.team1885.robot.SystemSettings;
+import org.ilite.frc.robot.controlloop.IControlLoop;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -21,16 +22,17 @@ import edu.wpi.first.wpilibj.Timer;
  * Class for running all drive train control operations from both autonomous and
  * driver-control
  */
-public class DriveTrain implements IModule {
-  //private final ILog mLog = Logger.createLog(DriveTrain.class);
+public class DriveTrain implements IControlLoop {
+	//private final ILog mLog = Logger.createLog(DriveTrain.class);
 
 	//private Solenoid gearShifter;
 	private final TalonSRX mLeftMaster, mRightMaster, mLeftFollower, mRightFollower; /*leftFollower2, rightFollower2;*/
 	private ControlMode mControlMode;
 	private double mDesiredLeft, mDesiredRight;
 	
-	public DriveTrain()
+	public DriveTrain(DriverControl driverControl)
 	{
+		this.driverControl = driverControl;
 		//leftMaster = new TalonSRX(SystemSettings.kDRIVETRAIN_TALONID_LEFT1);
 		mLeftMaster = TalonFactory.createDefault(SystemSettings.kDRIVETRAIN_TALONID_LEFT1);
 		mRightMaster = TalonFactory.createDefault(SystemSettings.kDRIVETRAIN_TALONID_RIGHT1);
@@ -56,9 +58,11 @@ public class DriveTrain implements IModule {
 	@Override
 	public boolean update(double pNow) {
 		//updateSpeed(desiredLeft, desiredRight);
-		mLeftMaster.set(mControlMode, mDesiredLeft);
-		mRightMaster.set(mControlMode, mDesiredRight);
-		System.out.printf("Left: %s Right: %s\n", mDesiredLeft, mDesiredRight);
+		leftMaster.setNeutralMode(driverControl.getDesiredNeutralMode());
+		rightMaster.setNeutralMode(driverControl.getDesiredNeutralMode());
+		leftMaster.set(driverControl.getDesiredControlMode(), driverControl.getDesiredLeftOutput());
+		rightMaster.set(driverControl.getDesiredControlMode(), driverControl.getDesiredRightOutput());
+		System.out.printf("Left: %s Right: %s\n", desiredLeft, desiredRight);
 		return false;
 	}	
 	
@@ -113,6 +117,13 @@ public class DriveTrain implements IModule {
 		default:
 			break;
 		}
+	}
+	@Override
+	public void loop(double pNow) {
+		leftMaster.setNeutralMode(driverControl.getDesiredNeutralMode());
+		rightMaster.setNeutralMode(driverControl.getDesiredNeutralMode());
+		leftMaster.set(driverControl.getDesiredControlMode(), driverControl.getDesiredLeftOutput());
+		rightMaster.set(driverControl.getDesiredControlMode(), driverControl.getDesiredRightOutput());
 	}
 	
 	public TalonSRX getMasterTalon(String mMaster)
