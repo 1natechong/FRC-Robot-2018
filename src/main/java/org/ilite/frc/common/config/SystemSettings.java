@@ -29,15 +29,16 @@ public class SystemSettings extends ConstantsBase {
   // =============================================================================
   // Talon Addresses
   // =============================================================================
-
-    public static int kDRIVETRAIN_TALONID_LEFT1 = 4;
-	public static int kDRIVETRAIN_TALONID_LEFT2 = 2;
-	public static int kDRIVETRAIN_TALONID_RIGHT1 = 1;
-	public static int kDRIVETRAIN_TALONID_RIGHT2 = 3;
-	public static int INTAKE_TALONID_FRONT_LEFT = 5;
-	public static int INTAKE_TALONID_FRONT_RIGHT = 6;
-	public static int ELEVATOR_TALONID_LEFT = 9;
-	public static int ELEVATOR_TALONID_RIGHT = 10;
+  public static  int kDRIVETRAIN_TALONID_LEFT1 = 8;
+	public static  int kDRIVETRAIN_TALONID_LEFT2 = 9;
+  public static  int kDRIVETRAIN_TALONID_LEFT3 = 10;
+	public static  int kDRIVETRAIN_TALONID_RIGHT1 = 5;
+	public static  int kDRIVETRAIN_TALONID_RIGHT2 = 6;
+	public static  int kDRIVETRAIN_TALONID_RIGHT3 = 7;
+	public static int INTAKE_TALONID_FRONT_LEFT = 13;
+	public static int INTAKE_TALONID_FRONT_RIGHT = 14;
+	public static int ELEVATOR_TALONID_LEFT = 11;
+	public static int ELEVATOR_TALONID_RIGHT = 12;
 	
 	public  static int kCONTROLLER_ID = 0;
 
