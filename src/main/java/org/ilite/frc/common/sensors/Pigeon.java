@@ -53,8 +53,22 @@ public class Pigeon implements IMU{
 	  return mPigeon.getFusedHeading();
 	}
 
-	public double getYaw() {
-    return ypr[0];
+	   public double getYaw() {
+	        double yaw = ypr[0];
+	        if(yaw > 360)
+	                      yaw = yaw - ((int)(Math.floor(yaw / 360)) * 360);
+	                  
+	                  if(yaw < 0)
+	                  {
+	                      if(yaw < -360)
+	                      {
+	                          yaw = yaw + ((int)(Math.floor(yaw / 360)) * 360);
+	                      }
+	                      
+	                      yaw = 360 - Math.abs(yaw);
+	                  }
+	                      
+	                  return yaw;
 	}
 	
 	public double getPitch() {
