@@ -21,8 +21,7 @@ public class DriverControl implements IModule{
 	private double desiredLeftOutput, desiredRightOutput;
 	private NeutralMode desiredNeutralMode;
 	private ControlMode desiredControlMode; 
-	private EInputScale inputScale;
-	
+	private EInputScale inputScale = EInputScale.EXPONENTIAL;
 	
 	public DriverControl(Data pData)
 	{

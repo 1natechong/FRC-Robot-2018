@@ -9,6 +9,7 @@ import org.ilite.frc.common.config.SystemSettings;
 import org.ilite.frc.common.types.ECross;
 import org.ilite.frc.common.types.ECubeAction;
 import org.ilite.frc.common.types.EStartingPosition;
+import org.ilite.frc.robot.SimpleNetworkTable;
 import org.ilite.frc.common.input.EDriverControlMode;
 
 import com.flybotix.hfr.util.lang.EnumUtils;
@@ -89,9 +90,9 @@ public class AutonConfigDisplay extends Application {
     
     HBox selectionBoxes = new HBox(
     		labeledCheckboxDropdown(ECubeAction.class, preferredCubeActions),
-    		labeledDropdown(EStartingPosition.class),
-    		labeledDropdown(ECross.class),
-    		labeledDropdown(EDriverControlMode.class)
+    		labeledDropdown(EStartingPosition.class, SystemSettings.AUTON_TABLE),
+    		labeledDropdown(ECross.class, SystemSettings.AUTON_TABLE),
+    		labeledDropdown(EDriverControlMode.class, SystemSettings.DRIVER_CONTROL_TABLE)
     );
     
     HBox modeOptions = new HBox(mode, send);
@@ -109,14 +110,14 @@ public class AutonConfigDisplay extends Application {
     primaryStage.show();
   }
   
-  private static <E extends Enum<E>> VBox labeledDropdown(Class<E> pEnumeration) {
+  private static <E extends Enum<E>> VBox labeledDropdown(Class<E> pEnumeration, SimpleNetworkTable networkTable) {
 	    List<E> enums = EnumUtils.getEnums(pEnumeration, true);
 	    Label label = new Label(toPrettyCase(pEnumeration.getSimpleName().substring(1)));
 	    label.setTextAlignment(TextAlignment.CENTER);
 	    ComboBox<E> combo = new ComboBox<>(FXCollections.observableArrayList(enums));
 	    combo.setOnAction(
 	        event -> 
-		    SystemSettings.AUTON_TABLE.putNumber(pEnumeration.getSimpleName(), combo.getSelectionModel().getSelectedItem().ordinal())
+		            networkTable.putNumber(pEnumeration.getSimpleName(), combo.getSelectionModel().getSelectedItem().ordinal())
 	    );
 	    combo.setValue(enums.get(0));
 	    VBox result = new VBox(label, combo);
