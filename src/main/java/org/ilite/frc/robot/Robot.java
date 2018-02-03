@@ -122,7 +122,7 @@ public class Robot extends IterativeRobot {
 	 String controlMode = SystemSettings.DRIVER_CONTROL_TABLE.getEntry("Driver Control Mode").getString("ARCADE");
 	 switch(controlMode) {
 	 case "ARCADE":
-		 switchDriverControlModes(new DriverControl(mData));
+		 switchDriverControlModes(new DriverControl(mData, intake, elevator));
 		 break;
 	 case "SPLIT_ARCADE": 
 	 	switchDriverControlModes(new DriverControlSplitArcade(mData));
