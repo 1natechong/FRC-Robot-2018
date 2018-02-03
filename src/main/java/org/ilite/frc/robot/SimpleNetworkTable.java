@@ -8,7 +8,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.NetworkTableEntry;
 
-public class SimpleNetworkTable  {
+public class SimpleNetworkTable {
     private NetworkTable netTable;
     
     public SimpleNetworkTable(String name) {
@@ -18,7 +18,7 @@ public class SimpleNetworkTable  {
         netTable.getInstance().startClientTeam(1885);
     }
     public synchronized void initKeys() {
-    	    netTable.getEntry(ECross.class.getSimpleName()).setDefaultNumber(-1);
+    	        netTable.getEntry(ECross.class.getSimpleName()).setDefaultNumber(-1);
       		netTable.getEntry(EStartingPosition.class.getSimpleName()).setDefaultNumber(-1);
       		Number[] defaultArray = {0};
       		netTable.getEntry(ECubeAction.class.getSimpleName()).setDefaultNumberArray(defaultArray);
@@ -40,8 +40,9 @@ public class SimpleNetworkTable  {
     		netTable.getEntry(key).forceSetString(value);
     }
     
-    public synchronized NetworkTableInstance getInstance() {
-    		return netTable.getInstance();
+    public synchronized NetworkTable getNetTable() {
+    		return netTable;
     }
+    
     
 }

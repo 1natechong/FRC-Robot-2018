@@ -12,6 +12,7 @@ import org.ilite.frc.robot.commands.ICommand;
 import org.ilite.frc.robot.controlloop.ControlLoopManager;
 import org.ilite.frc.robot.modules.DriveTrain;
 import org.ilite.frc.robot.modules.DriverControl;
+import org.ilite.frc.robot.modules.DriverControlSplitArcade;
 import org.ilite.frc.robot.modules.IModule;
 
 import com.flybotix.hfr.util.log.ELevel;
@@ -49,6 +50,7 @@ public class Robot extends IterativeRobot {
 	drivetraincontrol = new DriverControl(mData);
 	dt = new DriveTrain(drivetraincontrol);
 	getAutonomous = new GetAutonomous(SystemSettings.AUTON_TABLE);
+	SystemSettings.DRIVER_CONTROL_TABLE.initKeys();
 	Logger.setLevel(ELevel.INFO);
   }
 
@@ -96,7 +98,7 @@ public class Robot extends IterativeRobot {
   public void teleopInit()
   {
 	  mLog.info("TELEOP");
-	  
+	  receiveDriverControlMode();
 	  setRunningModules(dt, drivetraincontrol);
 	  //setRunningModules(dt, drivetraincontrol);
 	  initializeRunningModules();
@@ -105,8 +107,21 @@ public class Robot extends IterativeRobot {
   }
   
   public void switchDriverControlModes(DriverControl dc) {
+	  
 	  this.drivetraincontrol = dc;
 	  dt.setDriverControl(dc);
+  }
+  
+  public void receiveDriverControlMode() {
+	 String controlMode = SystemSettings.DRIVER_CONTROL_TABLE.getEntry("Driver Control Mode").getString("ARCADE");
+	 switch(controlMode) {
+	 case "ARCADE":
+		 switchDriverControlModes(new DriverControl(mData));
+		 break;
+	 case "SPLIT_ARCADE": 
+	 	switchDriverControlModes(new DriverControlSplitArcade(mData));
+	 	break;
+	 }
   }
 
   public void teleopPeriodic() {
