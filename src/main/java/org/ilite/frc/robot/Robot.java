@@ -18,7 +18,7 @@ import com.flybotix.hfr.util.log.ELevel;
 import com.flybotix.hfr.util.log.ILog;
 import com.flybotix.hfr.util.log.Logger;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
+import javax.swing.JOptionPane;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
@@ -41,7 +41,7 @@ public class Robot extends IterativeRobot {
   
   // Temporary...
   private final DriveTrain dt;
-  private final DriverControl drivetraincontrol;
+  private DriverControl drivetraincontrol;
   
 
   public Robot() {
@@ -96,10 +96,17 @@ public class Robot extends IterativeRobot {
   public void teleopInit()
   {
 	  mLog.info("TELEOP");
+	  
 	  setRunningModules(dt, drivetraincontrol);
+	  //setRunningModules(dt, drivetraincontrol);
 	  initializeRunningModules();
 	  mControlLoop.setRunningControlLoops();
 	  mControlLoop.start();
+  }
+  
+  public void switchDriverControlModes(DriverControl dc) {
+	  this.drivetraincontrol = dc;
+	  dt.setDriverControl(dc);
   }
 
   public void teleopPeriodic() {

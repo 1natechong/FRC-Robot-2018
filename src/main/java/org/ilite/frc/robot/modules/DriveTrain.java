@@ -65,6 +65,10 @@ public class DriveTrain implements IControlLoop {
 		return false;
 	}	
 	
+	public void setDriverControl(DriverControl driverControl) {
+		this.driverControl = driverControl;
+	}
+	
 	/*private void updateSpeed(double l, double r)
 	{
 	

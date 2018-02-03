@@ -21,6 +21,8 @@ public class DriverControl implements IModule{
 	private double desiredLeftOutput, desiredRightOutput;
 	private NeutralMode desiredNeutralMode;
 	private ControlMode desiredControlMode; 
+	private EInputScale inputScale;
+	
 	
 	public DriverControl(Data pData)
 	{
@@ -41,7 +43,7 @@ public class DriverControl implements IModule{
 //		double rotate = mGamepad.getRawAxis(SystemSettings.kGAMEPAD_LEFT_Y);
 //		double throttle = mGamepad.getRawAxis(SystemSettings.kGAMEPAD_RIGHT_X);
 		double rotate = mData.driverinput.get(ELogitech310.LEFT_Y_AXIS);
-		rotate = EInputScale.EXPONENTIAL.map(rotate, 2);
+		rotate = inputScale.map(rotate, 2);
 		double throttle = mData.driverinput.get(ELogitech310.RIGHT_X_AXIS);
 		desiredLeftOutput = throttle - rotate;
 		desiredRightOutput = throttle + rotate;
@@ -78,5 +80,20 @@ public class DriverControl implements IModule{
 		
 	}
 	
+	public void setInputScaling(EInputScale inputScale) {
+		this.inputScale = inputScale;
+	}
+	
+	public EInputScale getInputScaling() {
+		return inputScale;
+	}
+	
+	public void setDesiredLeft(double desiredLeft) {
+		desiredLeftOutput = desiredLeft;
+	}
+	
+	public void setDesiredRight(double desiredRight) {
+		desiredRightOutput = desiredRight;
+	}
 
 }
