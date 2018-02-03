@@ -7,19 +7,24 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.ilite.frc.common.config.SystemSettings;
+import org.ilite.frc.common.sensors.Pigeon;
 import org.ilite.frc.common.types.ELogitech310;
+import org.ilite.frc.common.types.EPigeon;
 import org.ilite.frc.robot.commands.ICommand;
 import org.ilite.frc.robot.controlloop.ControlLoopManager;
 import org.ilite.frc.robot.modules.DriveTrain;
 import org.ilite.frc.robot.modules.DriverControl;
 import org.ilite.frc.robot.modules.DriverControlSplitArcade;
+import org.ilite.frc.robot.modules.Elevator;
 import org.ilite.frc.robot.modules.IModule;
+import org.ilite.frc.robot.modules.Intake;
 
+import com.ctre.phoenix.sensors.PigeonIMU;
 import com.flybotix.hfr.util.log.ELevel;
 import com.flybotix.hfr.util.log.ILog;
 import com.flybotix.hfr.util.log.Logger;
 
-import javax.swing.JOptionPane;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
@@ -41,13 +46,17 @@ public class Robot extends IterativeRobot {
   private ICommand mCurrentCommand;
   
   // Temporary...
+  private final Intake intake;
+  private final Elevator elevator;
   private final DriveTrain dt;
   private DriverControl drivetraincontrol;
   
 
   public Robot() {
 	mControlLoop = new ControlLoopManager(mData, mHardware);
-	drivetraincontrol = new DriverControl(mData);
+	elevator = new Elevator();
+	intake = new Intake(elevator);
+	drivetraincontrol = new DriverControl(mData, intake, elevator);
 	dt = new DriveTrain(drivetraincontrol);
 	getAutonomous = new GetAutonomous(SystemSettings.AUTON_TABLE);
 	SystemSettings.DRIVER_CONTROL_TABLE.initKeys();
@@ -62,7 +71,7 @@ public class Robot extends IterativeRobot {
         new Joystick(SystemSettings.JOYSTICK_PORT_DRIVER), 
         new Joystick(SystemSettings.JOYSTICK_PORT_OPERATOR), 
         new PowerDistributionPanel(), 
-        null
+        new PigeonIMU(SystemSettings.PIGEON_DEVICE_ID)
         // Sensors
         // Custom hw
         // Spike relays
@@ -70,38 +79,35 @@ public class Robot extends IterativeRobot {
         
         // Talons TBD ... they're somewhat picky.
     );
-    
-    
+
   }
 
   public void autonomousInit() {
-	mLog.info("AUTONOMOUS");
     System.out.println("Default autonomousInit() method... Overload me!");
+    mLog.info("AUTONOMOUS");
+    mHardware.getPigeon().zeroAll();
     mCommandQueue = getAutonomous.getAutonomousCommands();
   }
   public void autonomousPeriodic() {
-	setRunningModules();
+    mCurrentTime = Timer.getFPGATimestamp();
+    mapInputsAndCachedSensors();
+	setRunningModules(drivetraincontrol, dt);
     //mControlLoop.setRunningControlLoops();
     //mControlLoop.start();
     
 	//TODO put updateCommandQueue into autoninit
 	updateCommandQueue(true);
-      if(mHardware.isGyroReady()) {
-        updateCommandQueue(false);
-        updateRunningModules();
-      } else {
-        mLog.warn("NavX data is not ready, skipping auton for 1 cycle");
-      }
+    updateRunningModules();
       
   }
   
   public void teleopInit()
   {
 	  mLog.info("TELEOP");
-	  receiveDriverControlMode();
-	  setRunningModules(dt, drivetraincontrol);
-	  //setRunningModules(dt, drivetraincontrol);
+	  setRunningModules(dt, drivetraincontrol, intake);
 	  initializeRunningModules();
+	  mHardware.getPigeon().zeroAll();
+	  
 	  mControlLoop.setRunningControlLoops();
 	  mControlLoop.start();
   }
@@ -129,15 +135,9 @@ public class Robot extends IterativeRobot {
     
       mCurrentTime = Timer.getFPGATimestamp();
 //      mData.resetAll(mCurrentTime);
-      mapInputs();
-      
+      mapInputsAndCachedSensors();
+      System.out.println("Yaw: " + mHardware.getPigeon().getYaw());
       updateRunningModules();
-      
-//      mCodexSender.send(mData.driverinput);
-//      mCodexSender.send(mData.drivetrain);
-//      ENavX.map(mData.navx, mHardware.getNavX());
-//      mCodexSender.send(mData.navx);
-      
     }
   
   
@@ -146,11 +146,13 @@ public class Robot extends IterativeRobot {
    * 2. Perform any input filtering (such as split the split arcade re-map and squaring of the turn)
    * 3. Sets DriveTrain outputs based on processed input
    */
-  private void mapInputs() {
-      ELogitech310.map(mData.driverinput, mHardware.getDriverJoystick(), null, false);
+  private void mapInputsAndCachedSensors() {
+      ELogitech310.map(mData.driverinput, mHardware.getDriverJoystick(), 1.0, false);
+      ELogitech310.map(mData.operator, mHardware.getOperatorJoystick(), 1.0, false);
     // Any input processing goes here, such as 'split arcade driver'
     // Any further input-to-direct-hardware processing goes here
     // Such as using a button to reset the gyros
+      EPigeon.map(mData.pigeon, mHardware.getPigeon(), mCurrentTime);
   }
   
   /**
@@ -161,12 +163,14 @@ public class Robot extends IterativeRobot {
 	  //Grab the next command
 	  mCurrentCommand = mCommandQueue.peek();
 	  if(mCurrentCommand != null) {
-		if(firstRun) mCurrentCommand.initialize();
-		//If this command is finished executing
-		if(mCurrentCommand.update()) mCommandQueue.poll(); //Discard the command and initialize the next one
+	    if(firstRun) mCurrentCommand.initialize();
+	    //If this command is finished executing
+	    if(mCurrentCommand.update()) {
+	      mCommandQueue.poll(); //Discard the command and initialize the next one
+	    }
 	    if(mCommandQueue.peek() != null) {
-	    	mCommandQueue.peek().initialize();
-	    	return true;
+	      mCommandQueue.peek().initialize();
+	      return true;
 	    }
 	  }
 	  return false;
@@ -188,7 +192,9 @@ public class Robot extends IterativeRobot {
    */
   private void setRunningModules(IModule...modules) {
 	  mRunningModules.clear();
-	  for(IModule m : modules) mRunningModules.add(m);
+	  for(IModule m : modules) {
+	    mRunningModules.add(m);
+	  }
 	  initializeRunningModules();
   }
   
@@ -215,4 +221,8 @@ public class Robot extends IterativeRobot {
 	  getAutonomous.getAutonomousCommands();
 	  Timer.delay(1);
   }
+  
+  
+  
+  
 }
