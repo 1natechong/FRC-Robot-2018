@@ -4,22 +4,34 @@ import org.ilite.frc.robot.modules.Intake;
 
 public class OuttakeCube implements ICommand {
 	private final Intake intake;
+	private double duration;
+	private double startTime;
+	private boolean firstTime;
 	
-	public OuttakeCube(Intake intake) {
+	public OuttakeCube(Intake intake, double duration) {
 		this.intake = intake;
-	
-	
+		this.duration = duration;
+		firstTime = true;
 	}
 	@Override
 	public void initialize() {
-		// TODO Auto-generated method stub
+		
 
 	}
 
 	@Override
 	public boolean update() {
+		if(firstTime) {
+	    firstTime = false;
+		startTime = System.currentTimeMillis();
+		}
 		
-		return false;
+		if(!(System.currentTimeMillis() - startTime > duration)) {
+			intake.intakeOut(1);
+			return false;
+		}
+		intake.intakeOut(0);
+		return true;
 	}
 	
 	

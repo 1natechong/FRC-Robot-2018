@@ -17,8 +17,12 @@ public class IntakeCube implements ICommand {
 
 	@Override
 	public boolean update() {
-		if()
-		return false;
+		if(!intake.limitSwitch()) { // if it is switched
+			intake.intakeIn(1);
+			return false;
+		}
+		intake.intakeIn(0);
+		return true;
 	}
 
 	@Override
