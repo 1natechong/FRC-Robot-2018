@@ -1,5 +1,6 @@
 package org.ilite.frc.robot.modules;
 
+
 import org.ilite.frc.common.config.SystemSettings;
 import org.ilite.frc.common.input.EInputScale;
 import org.ilite.frc.common.types.ELogitech310;
@@ -8,11 +9,9 @@ import org.ilite.frc.robot.Data;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
-//import edu.wpi.first.wpilibj.Talon;
 
-public class DriverControl implements IModule{
+public class DriverControlSplitArcade implements IModule{
 
 	
 	private Joystick mGamepad;
@@ -26,7 +25,7 @@ public class DriverControl implements IModule{
 	private ControlMode desiredControlMode; 
 	private EInputScale inputScale = EInputScale.EXPONENTIAL;
 	
-	public DriverControl(Data pData, Intake pIntake, Elevator pElevator)
+	public DriverControlSplitArcade(Data pData, Intake pIntake, Elevator pElevator)
 	{
 		this.mGamepad = new Joystick(SystemSettings.kCONTROLLER_ID);
 		this.mData = pData;
@@ -55,9 +54,14 @@ public class DriverControl implements IModule{
 	  
 		double rotate = mData.driverinput.get(ELogitech310.LEFT_Y_AXIS);
 		rotate = EInputScale.EXPONENTIAL.map(rotate, 2);
-		double throttle = mData.driverinput.get(ELogitech310.RIGHT_X_AXIS);
+		
+		double throttle1 = mData.driverinput.get(ELogitech310.LEFT_TRIGGER_AXIS);
+		double throttle2 = mData.driverinput.get(ELogitech310.RIGHT_TRIGGER_AXIS);
+		
+		double throttle = (throttle1 + throttle2 ==2)? 1 : 0;
 		desiredLeftOutput = throttle - rotate;
 		desiredRightOutput = throttle + rotate;
+		
 		
 		int leftScalar = desiredLeftOutput < 0 ? -1 : 1;
 		int rightScalar = desiredRightOutput < 0 ? -1 : 1;
@@ -136,6 +140,7 @@ public class DriverControl implements IModule{
 		// TODO Auto-generated method stub
 		
 	}
+	
 	public void setInputScaling(EInputScale inputScale) {
 		this.inputScale = inputScale;
 	}
@@ -143,6 +148,4 @@ public class DriverControl implements IModule{
 	public EInputScale getInputScaling() {
 		return inputScale;
 	}
-	
-
 }
